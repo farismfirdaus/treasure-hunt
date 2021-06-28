@@ -52,72 +52,43 @@ func TreasureHunt(mapValue [][]string, y int, x int) (result [][]string, solutio
 			break
 		} else if strings.EqualFold(mapValue[yAxis][x+1], ".") && strings.EqualFold(mapValue[yAxis-1][x], "#") {
 			mapValue[yAxis][x] = "┌"
-			for xAxis := x + 1; xAxis < len(mapValue[0]); xAxis++ {
-				if strings.EqualFold(mapValue[yAxis][xAxis], "#") {
-					break
-				} else if strings.EqualFold(mapValue[yAxis+1][xAxis], ".") && strings.EqualFold(mapValue[yAxis][xAxis+1], "#") {
-					mapValue[yAxis][xAxis] = "┐"
-					for yAxis1 := yAxis + 1; yAxis1 < len(mapValue); yAxis1++ {
-						if strings.EqualFold(mapValue[yAxis1][xAxis], "#") {
-							break
-						} else {
-							if !existInSolution(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1)) {
-								solution = append(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1))
-								mapValue[yAxis1][xAxis] = "$"
-							}
-						}
-					}
-				} else if strings.EqualFold(mapValue[yAxis+1][xAxis], ".") || strings.EqualFold(mapValue[yAxis+1][xAxis], "─") || strings.EqualFold(mapValue[yAxis+1][xAxis], "┐") {
-					mapValue[yAxis][xAxis] = "┬"
-					for yAxis1 := yAxis + 1; yAxis1 < len(mapValue); yAxis1++ {
-						if strings.EqualFold(mapValue[yAxis1][xAxis], "#") {
-							break
-						} else {
-							if !existInSolution(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1)) {
-								solution = append(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1))
-								mapValue[yAxis1][xAxis] = "$"
-							}
-						}
-					}
-				} else {
-					mapValue[yAxis][xAxis] = "─"
-				}
-			}
+			rightStep(mapValue, solution, yAxis, x)
 		} else if strings.EqualFold(mapValue[yAxis][x+1], ".") {
 			mapValue[yAxis][x] = "├"
-			for xAxis := x + 1; xAxis < len(mapValue[0]); xAxis++ {
-				if strings.EqualFold(mapValue[yAxis][xAxis], "#") {
-					break
-				} else if strings.EqualFold(mapValue[yAxis+1][xAxis], ".") && strings.EqualFold(mapValue[yAxis][xAxis+1], "#") {
-					mapValue[yAxis][xAxis] = "┐"
-					for yAxis1 := yAxis + 1; yAxis1 < len(mapValue); yAxis1++ {
-						if strings.EqualFold(mapValue[yAxis1][xAxis], "#") {
-							break
-						} else {
-							if !existInSolution(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1)) {
-								solution = append(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1))
-								mapValue[yAxis1][xAxis] = "$"
-							}
-						}
-					}
-				} else if strings.EqualFold(mapValue[yAxis+1][xAxis], ".") || strings.EqualFold(mapValue[yAxis+1][xAxis], "─") || strings.EqualFold(mapValue[yAxis+1][xAxis], "┐") {
-					mapValue[yAxis][xAxis] = "┐"
-					for yAxis1 := yAxis + 1; yAxis1 < len(mapValue); yAxis1++ {
-						if strings.EqualFold(mapValue[yAxis1][xAxis], "#") {
-							break
-						} else {
-							if !existInSolution(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1)) {
-								solution = append(solution, fmt.Sprintf("[%v,%v]", xAxis, yAxis1))
-								mapValue[yAxis1][xAxis] = "$"
-							}
-						}
-					}
-				} else {
-					mapValue[yAxis][xAxis] = "─"
-				}
-			}
+			rightStep(mapValue, solution, yAxis, x)
 		} else {
 			mapValue[yAxis][x] = "│"
+		}
+	}
+	return mapValue, solution
+}
+
+func downStep(mapValue [][]string, solution []string, y int, x int) ([][]string, []string) {
+	for yAxis := y + 1; yAxis < len(mapValue); yAxis++ {
+		if strings.EqualFold(mapValue[yAxis][x], "#") {
+			break
+		} else {
+			if !existInSolution(solution, fmt.Sprintf("[%v,%v]", x, yAxis)) {
+				solution = append(solution, fmt.Sprintf("[%v,%v]", x, yAxis))
+				mapValue[yAxis][x] = "$"
+			}
+		}
+	}
+	return mapValue, solution
+}
+
+func rightStep(mapValue [][]string, solution []string, y int, x int) ([][]string, []string) {
+	for xAxis := x + 1; xAxis < len(mapValue[0]); xAxis++ {
+		if strings.EqualFold(mapValue[y][xAxis], "#") {
+			break
+		} else if strings.EqualFold(mapValue[y+1][xAxis], ".") && strings.EqualFold(mapValue[y][xAxis+1], "#") {
+			mapValue[y][xAxis] = "┐"
+			mapValue, solution = downStep(mapValue, solution, y, xAxis)
+		} else if strings.EqualFold(mapValue[y+1][xAxis], ".") || strings.EqualFold(mapValue[y+1][xAxis], "─") || strings.EqualFold(mapValue[y+1][xAxis], "┐") {
+			mapValue[y][xAxis] = "┬"
+			mapValue, solution = downStep(mapValue, solution, y, xAxis)
+		} else {
+			mapValue[y][xAxis] = "─"
 		}
 	}
 	return mapValue, solution
